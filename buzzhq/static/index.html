@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Buzz HQ — Lecturaun Marketing Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #070b14;
+  --surface: #0e1525;
+  --surface2: #151f35;
+  --border: #1c2b45;
+  --accent: #f59e0b;
+  --accent2: #ec4899;
+  --green: #10b981;
+  --blue: #3b82f6;
+  --purple: #8b5cf6;
+  --text: #e2e8f0;
+  --muted: #4b6080;
+  --r: 14px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; }
+
+/* Sidebar */
+.sidebar {
+  width: 230px; min-height: 100vh; background: var(--surface);
+  border-right: 1px solid var(--border); position: fixed;
+  left: 0; top: 0; bottom: 0; z-index: 100; display: flex; flex-direction: column;
+}
+.logo { padding: 22px 18px 12px; border-bottom: 1px solid var(--border); }
+.logo-top { display: flex; align-items: center; gap: 8px; }
+.logo-icon { font-size: 26px; }
+.logo h1 { font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 900; color: #fff; }
+.logo h1 span { color: var(--accent); }
+.logo p { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 0.8px; text-transform: uppercase; }
+.nav { padding: 10px 10px; flex: 1; }
+.nav-section { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; padding: 12px 10px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px; padding: 9px 10px;
+  border-radius: 9px; cursor: pointer; font-size: 13px; font-weight: 500;
+  color: var(--muted); transition: all 0.15s; margin-bottom: 1px;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: #f59e0b18; color: var(--accent); border: 1px solid #f59e0b30; }
+.nav-item .ni { font-size: 16px; width: 20px; text-align: center; }
+
+.agent-nav {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: 9px; cursor: pointer; font-size: 12px; font-weight: 500;
+  color: var(--muted); transition: all 0.15s; margin-bottom: 1px;
+}
+.agent-nav:hover { background: var(--surface2); color: var(--text); }
+.agent-nav.active { color: var(--text); background: var(--surface2); }
+.agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+.status-bar {
+  padding: 12px 14px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--muted);
+}
+.status-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); margin-right: 6px; animation: pulse-dot 2s infinite; }
+@keyframes pulse-dot { 0%,100%{opacity:1}50%{opacity:0.3} }
+
+/* Main */
+.main { margin-left: 230px; flex: 1; }
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; }
+
+/* HQ Dashboard */
+.hq-header {
+  padding: 28px 32px 20px; border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #0e1525 0%, transparent 100%);
+}
+.hq-title { font-family: 'Nunito', sans-serif; font-size: 30px; font-weight: 900; color: #fff; }
+.hq-title span { color: var(--accent); }
+.hq-sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.hq-body { padding: 24px 32px; flex: 1; }
+
+/* Stats row */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+.stat-box {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 16px 18px;
+}
+.stat-box .sb-val { font-size: 26px; font-weight: 800; font-family: 'Nunito', sans-serif; color: #fff; }
+.stat-box .sb-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
+
+/* Staff Grid */
+.staff-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+.staff-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 18px; cursor: pointer;
+  transition: all 0.2s; position: relative; overflow: hidden;
+}
+.staff-card:hover { transform: translateY(-2px); border-color: var(--agent-color, var(--accent)); box-shadow: 0 8px 30px rgba(0,0,0,0.5); }
+.staff-card .top-line { height: 3px; position: absolute; top: 0; left: 0; right: 0; border-radius: 14px 14px 0 0; }
+.staff-emoji { font-size: 36px; margin-bottom: 10px; }
+.staff-name { font-weight: 700; font-size: 15px; color: #fff; }
+.staff-role { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin: 3px 0 6px; }
+.staff-tagline { font-size: 12px; color: var(--muted); line-height: 1.4; font-style: italic; }
+
+/* Workspace — Agent Chat */
+.workspace { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 0px); }
+.ws-sidebar {
+  width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; flex-shrink: 0;
+}
+.ws-sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); }
+.ws-sidebar-header h3 { font-size: 13px; font-weight: 700; color: #fff; }
+.agent-picker { flex: 1; overflow-y: auto; padding: 8px; }
+.ap-card {
+  display: flex; align-items: center; gap: 10px; padding: 10px 10px;
+  border-radius: 9px; cursor: pointer; border: 1px solid transparent;
+  transition: all 0.15s; margin-bottom: 4px;
+}
+.ap-card:hover { background: var(--surface2); }
+.ap-card.active { background: var(--surface2); border-color: var(--border); }
+.ap-emoji { font-size: 22px; }
+.ap-info .ap-name { font-size: 13px; font-weight: 600; color: #fff; }
+.ap-info .ap-role { font-size: 10px; color: var(--muted); }
+
+.ws-chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.ws-chat-header {
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+.ws-chat-header .wch-emoji { font-size: 26px; }
+.ws-chat-header .wch-name { font-weight: 700; font-size: 15px; color: #fff; }
+.ws-chat-header .wch-role { font-size: 11px; color: var(--muted); }
+.ws-chat-header .wch-badge {
+  margin-left: auto; font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  background: #f59e0b22; color: var(--accent); font-weight: 600; border: 1px solid #f59e0b33;
+}
+.ws-chat-header .wch-badge.live { background: #10b98122; color: var(--green); border-color: #10b98133; }
+
+.ws-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.wm { animation: fadeUp 0.3s ease; }
+.wm.user { align-self: flex-end; max-width: 75%; }
+.wm.assistant { align-self: flex-start; max-width: 85%; }
+.wm-meta { font-size: 11px; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+.wm-bubble {
+  padding: 12px 16px; border-radius: 14px; font-size: 13px; line-height: 1.7;
+  white-space: pre-wrap; word-break: break-word;
+}
+.wm.user .wm-bubble { background: #3b82f622; border: 1px solid #3b82f644; border-radius: 14px 14px 4px 14px; }
+.wm.assistant .wm-bubble { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px 14px 14px 14px; }
+
+.save-btn {
+  font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 1px solid var(--border);
+  background: transparent; color: var(--muted); cursor: pointer; margin-top: 5px;
+  transition: all 0.15s;
+}
+.save-btn:hover { background: var(--surface); color: var(--text); border-color: var(--accent); }
+
+.ws-input-bar { padding: 14px 18px; border-top: 1px solid var(--border); display: flex; gap: 10px; flex-shrink: 0; }
+.ws-input {
+  flex: 1; padding: 10px 14px; background: var(--surface2);
+  border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+  font-size: 13px; outline: none; resize: none; font-family: 'Inter', sans-serif;
+}
+.ws-input:focus { border-color: var(--accent); }
+.btn-send {
+  padding: 10px 18px; background: var(--accent); color: #000;
+  border: none; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-send:hover { background: #e08f00; }
+.btn-send:disabled { opacity: 0.5; }
+
+/* Campaigns */
+.camp-body { padding: 24px 32px; }
+.camp-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+.camp-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 18px;
+  display: flex; align-items: center; gap: 16px;
+}
+.camp-status { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.camp-status.active { background: var(--green); box-shadow: 0 0 8px var(--green); }
+.camp-name { font-weight: 700; font-size: 15px; color: #fff; }
+.camp-goal { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.camp-kpi { font-size: 12px; color: var(--accent); margin-top: 2px; font-weight: 600; }
+
+/* Output Vault */
+.vault-body { padding: 24px 32px; }
+.vault-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 14px; margin-top: 16px; }
+.vault-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px;
+  position: relative;
+}
+.vault-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.vault-agent { font-size: 18px; }
+.vault-type { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.vault-platform { font-size: 11px; color: var(--muted); margin-left: auto; }
+.vault-content { font-size: 12px; color: var(--text); line-height: 1.6; max-height: 120px; overflow: hidden; position: relative; }
+.vault-content::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 30px; background: linear-gradient(transparent, var(--surface)); }
+.vault-date { font-size: 11px; color: var(--muted); margin-top: 8px; }
+
+/* Settings */
+.settings-body { padding: 24px 32px; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 900px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 22px; }
+.card h3 { font-weight: 700; font-size: 15px; color: #fff; margin-bottom: 4px; }
+.card p { font-size: 12px; color: var(--muted); margin-bottom: 18px; }
+.form-label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 6px; }
+.form-input { width: 100%; padding: 9px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; font-family: 'Inter', sans-serif; transition: border 0.2s; }
+.form-input:focus { border-color: var(--accent); }
+.form-select { width: 100%; padding: 9px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 13px; outline: none; cursor: pointer; }
+.fg { margin-bottom: 14px; }
+.btn-primary { padding: 9px 18px; background: var(--accent); color: #000; border: none; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer; }
+.btn-outline { padding: 9px 18px; background: transparent; border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 13px; cursor: pointer; }
+.btn-sm { padding: 6px 14px; font-size: 12px; }
+
+/* Page Header */
+.pg-header { padding: 24px 32px 0; }
+.pg-header h2 { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 900; color: #fff; }
+.pg-header p { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.pg-actions { margin-left: auto; display: flex; gap: 8px; }
+.pg-header-row { display: flex; align-items: flex-start; padding: 24px 32px 0; }
+
+/* Typing */
+.typing { display: flex; gap: 4px; padding: 10px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px 14px 14px 14px; width: fit-content; }
+.typing span { width: 5px; height: 5px; background: var(--muted); border-radius: 50%; animation: bounce 1.2s infinite; }
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,100%{transform:translateY(0)}50%{transform:translateY(-5px);background:var(--accent)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)} }
+
+/* Modal */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.8); z-index:1000; align-items:center; justify-content:center; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:26px; width:400px; max-width:92vw; animation:fadeUp .3s ease; }
+.modal h3 { font-family:'Nunito',sans-serif; font-size:20px; font-weight:900; color:#fff; margin-bottom:4px; }
+.modal p { font-size:12px; color:var(--muted); margin-bottom:18px; }
+
+/* empty */
+.empty-state { text-align:center; padding:50px 20px; color:var(--muted); }
+.empty-state .ei { font-size:42px; margin-bottom:10px; }
+.empty-state h3 { font-size:16px; font-weight:700; color:var(--text); margin-bottom:6px; }
+
+::-webkit-scrollbar { width:4px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+.mt-16{margin-top:16px} .mt-12{margin-top:12px} .gap-10{gap:10px} .flex{display:flex} .items-center{align-items:center} .ml-auto{margin-left:auto}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="logo">
+    <div class="logo-top">
+      <span class="logo-icon">🍌</span>
+      <h1>Buzz <span>HQ</span></h1>
+    </div>
+    <p>Lecturaun Marketing Command</p>
+  </div>
+  <div class="nav">
+    <div class="nav-section">Command</div>
+    <div class="nav-item active" onclick="nav('dashboard')"><span class="ni">🏠</span> HQ Dashboard</div>
+    <div class="nav-item" onclick="nav('workspace')"><span class="ni">💬</span> Staff Workspace</div>
+    <div class="nav-item" onclick="nav('campaigns')"><span class="ni">🎯</span> Campaigns</div>
+    <div class="nav-item" onclick="nav('vault')"><span class="ni">🔒</span> Output Vault</div>
+
+    <div class="nav-section">Staff</div>
+    <div id="staffNav"></div>
+
+    <div class="nav-section">System</div>
+    <div class="nav-item" onclick="nav('settings')"><span class="ni">⚙️</span> Settings</div>
+  </div>
+  <div class="status-bar">
+    <span class="status-dot"></span>
+    <span id="statusText">Demo Mode</span>
+  </div>
+</nav>
+
+<div class="main">
+
+<!-- HQ DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <div class="hq-header">
+    <div class="hq-title">🍌 Buzz <span>HQ</span></div>
+    <div class="hq-sub">Zero budget. Maximum chaos. Lecturaun goes viral or we die trying.</div>
+  </div>
+  <div class="hq-body">
+    <div class="stat-row">
+      <div class="stat-box"><div class="sb-val" id="statStudents">—</div><div class="sb-lbl">Lecturaun Students</div></div>
+      <div class="stat-box"><div class="sb-val" id="statSessions">—</div><div class="sb-lbl">Learning Sessions</div></div>
+      <div class="stat-box"><div class="sb-val" id="statAch">—</div><div class="sb-lbl">NFT Achievements</div></div>
+      <div class="stat-box"><div class="sb-val" id="statXP">—</div><div class="sb-lbl">Total XP Earned</div></div>
+    </div>
+
+    <div style="margin-bottom:16px;font-size:13px;font-weight:700;color:#fff">🧑‍💼 Your Marketing Staff</div>
+    <div class="staff-grid" id="staffGrid"></div>
+
+    <div style="margin-top:28px;padding:18px;background:var(--surface);border:1px solid #f59e0b44;border-radius:var(--r)">
+      <div style="font-size:13px;font-weight:700;color:var(--accent);margin-bottom:8px">🍌 Buzz's Immediate Orders</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.8">
+        1. Open <strong style="color:var(--text)">Staff Workspace</strong> → Select Buzz Nakamura → Ask him for a Reddit invasion plan<br/>
+        2. Get Valentina Cross to write the landing page hero copy<br/>
+        3. Get Rex Holloway to map your top 10 target communities<br/>
+        4. Get Dash Kowalski to define your north star KPI<br/>
+        5. Get Mira Osei to write your first 10 user outreach emails<br/>
+        <br/>
+        <strong style="color:var(--accent)">Add your OpenAI API key in Settings to unlock live AI responses.</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WORKSPACE -->
+<div id="page-workspace" class="page" style="flex-direction:row">
+  <div class="workspace">
+    <div class="ws-sidebar">
+      <div class="ws-sidebar-header">
+        <h3>🧑‍💼 Staff</h3>
+      </div>
+      <div class="agent-picker" id="agentPicker"></div>
+    </div>
+    <div class="ws-chat" id="wsChat">
+      <div class="ws-chat-header" id="wsChatHeader">
+        <div style="color:var(--muted);font-size:13px">← Select a staff member</div>
+      </div>
+      <div class="ws-messages" id="wsMessages">
+        <div class="empty-state" style="margin:auto">
+          <div class="ei">🍌</div>
+          <h3>Pick your agent</h3>
+          <p>Select a staff member to start working</p>
+        </div>
+      </div>
+      <div class="ws-input-bar" id="wsInputBar" style="display:none">
+        <textarea class="ws-input" id="wsInput" rows="2" placeholder="Brief your agent... (Enter to send)"></textarea>
+        <button class="btn-send" id="btnSend" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CAMPAIGNS -->
+<div id="page-campaigns" class="page">
+  <div class="pg-header-row">
+    <div><h2 style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:#fff">🎯 Campaigns</h2><p style="font-size:13px;color:var(--muted);margin-top:3px">Track every active initiative</p></div>
+    <div class="pg-actions"><button class="btn-primary btn-sm" onclick="openCampModal()">+ New Campaign</button></div>
+  </div>
+  <div class="camp-body">
+    <div class="camp-grid" id="campGrid">
+      <div class="empty-state"><div class="ei">🎯</div><h3>No campaigns yet</h3><p>Launch your first campaign!</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- VAULT -->
+<div id="page-vault" class="page">
+  <div class="pg-header-row">
+    <div><h2 style="font-family:'Nunito',sans-serif;font-size:24px;font-weight:900;color:#fff">🔒 Output Vault</h2><p style="font-size:13px;color:var(--muted);margin-top:3px">All saved content from your staff</p></div>
+    <div class="pg-actions">
+      <select id="vaultFilter" class="form-select" style="width:160px;font-size:12px;padding:6px 10px" onchange="loadVault()">
+        <option value="">All Staff</option>
+      </select>
+    </div>
+  </div>
+  <div class="vault-body">
+    <div class="vault-grid" id="vaultGrid">
+      <div class="empty-state" style="grid-column:1/-1"><div class="ei">🔒</div><h3>Vault is empty</h3><p>Save agent outputs to build your content library</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS -->
+<div id="page-settings" class="page">
+  <div class="pg-header"><h2>⚙️ Settings</h2><p>Configure your AI engine</p></div>
+  <div class="settings-body">
+    <div class="settings-grid">
+      <div class="card">
+        <h3>🤖 AI Engine</h3>
+        <p>Add your OpenAI key to unlock live AI responses from all 5 staff members.</p>
+        <div class="fg"><label class="form-label">OpenAI API Key</label><input type="password" class="form-input" id="cfgKey" placeholder="sk-..."/></div>
+        <div class="fg"><label class="form-label">Model</label>
+          <select class="form-select" id="cfgModel">
+            <option value="gpt-4o-mini">GPT-4o Mini (Recommended)</option>
+            <option value="gpt-4o">GPT-4o (Powerful)</option>
+            <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Economy)</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="saveConfig()">Save</button>
+        <div id="cfgMsg" style="margin-top:10px;font-size:12px;color:var(--green);display:none"></div>
+      </div>
+      <div class="card">
+        <h3>🍌 About Buzz HQ</h3>
+        <p>Zero-budget guerrilla marketing command center for Lecturaun.</p>
+        <div style="font-size:13px;color:var(--muted);line-height:1.8">
+          <strong style="color:var(--text)">Staff:</strong><br/>
+          🍌 Buzz Nakamura — Guerrilla Hype<br/>
+          🎬 Valentina Cross — Content Director<br/>
+          🦊 Rex Holloway — SEO & Community<br/>
+          💛 Mira Osei — Evangelist Manager<br/>
+          📊 Dash Kowalski — Analytics<br/><br/>
+          <strong style="color:var(--text)">Connected to:</strong><br/>
+          🎓 Lecturaun Platform — pulls live student/achievement data for social proof
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- CAMPAIGN MODAL -->
+<div class="modal-overlay" id="campModal">
+  <div class="modal">
+    <h3>🎯 New Campaign</h3>
+    <p>Define your next marketing initiative</p>
+    <div class="fg"><label class="form-label">Campaign Name</label><input class="form-input" id="cName" placeholder="e.g. Reddit Invasion Wave 1"/></div>
+    <div class="fg"><label class="form-label">Goal</label><input class="form-input" id="cGoal" placeholder="e.g. 500 demo sessions in 30 days"/></div>
+    <div class="fg"><label class="form-label">KPI</label><input class="form-input" id="cKpi" placeholder="e.g. Weekly Active Students = 50"/></div>
+    <div class="flex gap-10 mt-12">
+      <button class="btn-primary" onclick="createCampaign()" style="flex:1">Launch 🚀</button>
+      <button class="btn-outline" onclick="closeMod('campModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE OUTPUT MODAL -->
+<div class="modal-overlay" id="saveModal">
+  <div class="modal">
+    <h3>💾 Save to Vault</h3>
+    <p>Archive this content for future use</p>
+    <div class="fg"><label class="form-label">Output Type</label>
+      <select class="form-select" id="saveType">
+        <option>Reddit Post</option><option>Twitter Thread</option><option>TikTok Script</option>
+        <option>Email Copy</option><option>Landing Page</option><option>Discord Message</option>
+        <option>SEO Strategy</option><option>KPI Report</option><option>Outreach Script</option><option>Other</option>
+      </select>
+    </div>
+    <div class="fg"><label class="form-label">Platform</label>
+      <select class="form-select" id="savePlatform">
+        <option>Reddit</option><option>Twitter/X</option><option>TikTok</option><option>Discord</option>
+        <option>Instagram</option><option>Email</option><option>Facebook</option><option>General</option>
+      </select>
+    </div>
+    <div class="flex gap-10 mt-12">
+      <button class="btn-primary" onclick="confirmSave()" style="flex:1">Save to Vault 🔒</button>
+      <button class="btn-outline" onclick="closeMod('saveModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+let agents = {};
+let currentAgent = null;
+let currentSession = null;
+let pendingSaveContent = '';
+let pendingSaveAgent = '';
+
+async function init() {
+  await loadAgents();
+  await loadStats();
+  await checkConfig();
+  renderStaffGrid();
+  renderStaffNav();
+  renderAgentPicker();
+  populateVaultFilter();
+  seedDefaultCampaigns();
+}
+
+async function loadAgents() {
+  try {
+    const r = await fetch(`${API}/api/agents`);
+    agents = await r.json();
+  } catch(e) {}
+}
+
+async function loadStats() {
+  try {
+    const r = await fetch(`${API}/api/lecturaun/stats`);
+    const d = await r.json();
+    document.getElementById('statStudents').textContent = d.total_students ?? '—';
+    document.getElementById('statSessions').textContent = d.total_sessions ?? '—';
+    document.getElementById('statAch').textContent = d.total_achievements ?? '—';
+    document.getElementById('statXP').textContent = d.total_xp ? d.total_xp.toLocaleString() : '—';
+  } catch(e) {}
+}
+
+async function checkConfig() {
+  try {
+    const r = await fetch(`${API}/api/config`);
+    const d = await r.json();
+    document.getElementById('statusText').textContent = d.mode === 'live' ? '🟢 Live AI Mode' : '🟡 Demo Mode';
+    document.getElementById('cfgModel').value = d.model;
+    // Update all badges
+    document.querySelectorAll('.wch-badge').forEach(b => {
+      b.textContent = d.mode === 'live' ? '🟢 Live AI' : '🟡 Demo';
+      b.className = 'wch-badge' + (d.mode === 'live' ? ' live' : '');
+    });
+  } catch(e) {}
+}
+
+function renderStaffGrid() {
+  const g = document.getElementById('staffGrid');
+  g.innerHTML = Object.entries(agents).map(([k, a]) => `
+    <div class="staff-card" style="--agent-color:${a.color}" onclick="openAgent('${k}')">
+      <div class="top-line" style="background:${a.color}"></div>
+      <div class="staff-emoji">${a.emoji}</div>
+      <div class="staff-name">${a.name}</div>
+      <div class="staff-role" style="color:${a.color}">${a.role}</div>
+      <div class="staff-tagline">"${a.tagline}"</div>
+    </div>
+  `).join('');
+}
+
+function renderStaffNav() {
+  const nav = document.getElementById('staffNav');
+  nav.innerHTML = Object.entries(agents).map(([k, a]) => `
+    <div class="agent-nav" id="nav-${k}" onclick="openAgent('${k}')">
+      <div class="agent-dot" style="background:${a.color}"></div>
+      <span style="font-size:14px">${a.emoji}</span>
+      <span>${a.name.split(' ')[0]}</span>
+    </div>
+  `).join('');
+}
+
+function renderAgentPicker() {
+  const p = document.getElementById('agentPicker');
+  p.innerHTML = Object.entries(agents).map(([k, a]) => `
+    <div class="ap-card" id="ap-${k}" onclick="selectAgent('${k}')">
+      <span class="ap-emoji">${a.emoji}</span>
+      <div class="ap-info">
+        <div class="ap-name">${a.name}</div>
+        <div class="ap-role">${a.role}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function populateVaultFilter() {
+  const sel = document.getElementById('vaultFilter');
+  sel.innerHTML = '<option value="">All Staff</option>' +
+    Object.entries(agents).map(([k, a]) => `<option value="${k}">${a.emoji} ${a.name}</option>`).join('');
+}
+
+function openAgent(key) {
+  nav('workspace');
+  setTimeout(() => selectAgent(key), 50);
+}
+
+async function selectAgent(key) {
+  document.querySelectorAll('.ap-card').forEach(c => c.classList.remove('active'));
+  document.getElementById(`ap-${key}`)?.classList.add('active');
+  currentAgent = key;
+  currentSession = null;
+
+  const a = agents[key];
+  const cfg = await (await fetch(`${API}/api/config`)).json();
+  const isLive = cfg.mode === 'live';
+
+  document.getElementById('wsChatHeader').innerHTML = `
+    <span class="wch-emoji">${a.emoji}</span>
+    <div>
+      <div class="wch-name">${a.name}</div>
+      <div class="wch-role" style="color:${a.color}">${a.role}</div>
+    </div>
+    <div class="wch-badge${isLive?' live':''}">${isLive?'🟢 Live AI':'🟡 Demo'}</div>
+  `;
+
+  const msgs = document.getElementById('wsMessages');
+  msgs.innerHTML = `
+    <div style="text-align:center;padding:30px 20px">
+      <div style="font-size:52px;margin-bottom:10px">${a.emoji}</div>
+      <div style="font-weight:700;font-size:17px;color:#fff">${a.name}</div>
+      <div style="font-size:12px;color:${a.color};margin-bottom:6px">${a.role}</div>
+      <div style="font-size:12px;color:var(--muted);font-style:italic;max-width:320px;margin:0 auto">"${a.tagline}"</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--muted);font-style:italic">${a.bio}</div>
+      <button class="btn-primary" style="margin-top:16px" onclick="briefAgent()">Brief ${a.name.split(' ')[0]} 🚀</button>
+    </div>
+  `;
+
+  document.getElementById('wsInputBar').style.display = 'flex';
+}
+
+async function briefAgent() {
+  if (!currentAgent) return;
+  const a = agents[currentAgent];
+  addTyping();
+  try {
+    const r = await fetch(`${API}/api/chat`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({agent_key: currentAgent, message: 'Introduce yourself briefly and tell me what you can do for Lecturaun right now. Be specific and show your personality.'})
+    });
+    const d = await r.json();
+    removeTyping();
+    currentSession = d.session_id;
+    document.getElementById('wsMessages').innerHTML = '';
+    addMsg('assistant', d.response, d.agent_name, d.agent_emoji, d.agent_key);
+  } catch(e) { removeTyping(); }
+}
+
+async function sendMsg() {
+  const input = document.getElementById('wsInput');
+  const txt = input.value.trim();
+  if (!txt || !currentAgent) return;
+  input.value = '';
+  document.getElementById('btnSend').disabled = true;
+  addMsg('user', txt, 'You', '👤', null);
+  addTyping();
+  try {
+    const r = await fetch(`${API}/api/chat`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({agent_key: currentAgent, message: txt, session_id: currentSession})
+    });
+    const d = await r.json();
+    removeTyping();
+    currentSession = d.session_id;
+    addMsg('assistant', d.response, d.agent_name, d.agent_emoji, currentAgent);
+  } catch(e) { removeTyping(); addMsg('assistant', 'Connection error.', 'System', '❌', null); }
+  document.getElementById('btnSend').disabled = false;
+}
+
+function addMsg(role, content, name, emoji, agentKey) {
+  const c = document.getElementById('wsMessages');
+  const d = document.createElement('div');
+  d.className = `wm ${role}`;
+  const saveBtn = (role === 'assistant' && agentKey) ?
+    `<button class="save-btn" onclick="openSaveModal('${agentKey}', \`${content.replace(/`/g,'\\`')}\`)">💾 Save to Vault</button>` : '';
+  d.innerHTML = `
+    <div class="wm-meta">${emoji} ${name}</div>
+    <div class="wm-bubble">${escHtml(content)}</div>
+    ${saveBtn}
+  `;
+  c.appendChild(d);
+  c.scrollTop = c.scrollHeight;
+}
+
+function addTyping() {
+  const c = document.getElementById('wsMessages');
+  const d = document.createElement('div');
+  d.id = 'typing'; d.className = 'wm assistant';
+  d.innerHTML = '<div class="typing"><span></span><span></span><span></span></div>';
+  c.appendChild(d); c.scrollTop = c.scrollHeight;
+}
+function removeTyping() { document.getElementById('typing')?.remove(); }
+
+function escHtml(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br/>');
+}
+
+function openSaveModal(agentKey, content) {
+  pendingSaveContent = content;
+  pendingSaveAgent = agentKey;
+  document.getElementById('saveModal').classList.add('open');
+}
+
+async function confirmSave() {
+  const type = document.getElementById('saveType').value;
+  const platform = document.getElementById('savePlatform').value;
+  await fetch(`${API}/api/outputs/save`, {
+    method: 'POST', headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({agent_key: pendingSaveAgent, output_type: type, content: pendingSaveContent, platform})
+  });
+  closeMod('saveModal');
+  showToast('Saved to Vault! 🔒');
+}
+
+async function loadVault() {
+  const filter = document.getElementById('vaultFilter').value;
+  const url = filter ? `${API}/api/outputs?agent_key=${filter}` : `${API}/api/outputs`;
+  const outputs = await (await fetch(url)).json();
+  const g = document.getElementById('vaultGrid');
+  if (!outputs.length) {
+    g.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="ei">🔒</div><h3>Vault is empty</h3><p>Save agent outputs to build your content library</p></div>`;
+    return;
+  }
+  g.innerHTML = outputs.map(o => {
+    const a = agents[o.agent_key] || {emoji: '🤖', color: '#888'};
+    return `
+      <div class="vault-card">
+        <div class="vault-header">
+          <span class="vault-agent">${a.emoji}</span>
+          <span class="vault-type" style="color:${a.color}">${o.output_type}</span>
+          <span class="vault-platform">${o.platform}</span>
+        </div>
+        <div class="vault-content">${escHtml(o.content)}</div>
+        <div class="vault-date">${new Date(o.created_at).toLocaleString()}</div>
+      </div>`;
+  }).join('');
+}
+
+async function loadCampaigns() {
+  const camps = await (await fetch(`${API}/api/campaigns`)).json();
+  const g = document.getElementById('campGrid');
+  if (!camps.length) {
+    g.innerHTML = `<div class="empty-state"><div class="ei">🎯</div><h3>No campaigns yet</h3></div>`;
+    return;
+  }
+  g.innerHTML = camps.map(c => `
+    <div class="camp-card">
+      <div class="camp-status ${c.status}"></div>
+      <div style="flex:1">
+        <div class="camp-name">${c.name}</div>
+        <div class="camp-goal">${c.goal}</div>
+        <div class="camp-kpi">KPI: ${c.kpi}</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">${new Date(c.created_at).toLocaleDateString()}</div>
+    </div>
+  `).join('');
+}
+
+async function seedDefaultCampaigns() {
+  try {
+    const r = await fetch(`${API}/api/campaigns`);
+    const existing = await r.json();
+    if (existing.length === 0) {
+      const defaults = [
+        {name: "🍌 Reddit Invasion Wave 1", goal: "500 organic visits from homeschool communities in 30 days", kpi: "500 referral sessions"},
+        {name: "🎬 AI Teacher Character Launch", goal: "Make Lolita, Big T & crew go viral on TikTok/Twitter", kpi: "100k impressions, 1k shares"},
+        {name: "💛 First 100 Evangelists", goal: "Turn first 100 users into vocal advocates", kpi: "20 referrals from evangelists"},
+        {name: "📊 North Star KPI Setup", goal: "Define and begin tracking Weekly Active Students", kpi: "50 WAS by Day 30"},
+      ];
+      for (const d of defaults) {
+        await fetch(`${API}/api/campaigns`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(d)});
+      }
+    }
+  } catch(e) {}
+}
+
+function openCampModal() { document.getElementById('campModal').classList.add('open'); }
+
+async function createCampaign() {
+  const name = document.getElementById('cName').value.trim();
+  const goal = document.getElementById('cGoal').value.trim();
+  const kpi = document.getElementById('cKpi').value.trim();
+  if (!name || !goal) { alert('Fill in name and goal'); return; }
+  await fetch(`${API}/api/campaigns`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({name, goal, kpi})});
+  closeMod('campModal');
+  loadCampaigns();
+  showToast('Campaign launched! 🚀');
+}
+
+async function saveConfig() {
+  const key = document.getElementById('cfgKey').value.trim();
+  const model = document.getElementById('cfgModel').value;
+  const r = await fetch(`${API}/api/config`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({openai_api_key: key, model})});
+  const d = await r.json();
+  const msg = document.getElementById('cfgMsg');
+  msg.textContent = '✅ ' + d.message;
+  msg.style.display = 'block';
+  await checkConfig();
+}
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`page-${page}`)?.classList.add('active');
+  const pages = ['dashboard','workspace','campaigns','vault','settings'];
+  const idx = pages.indexOf(page);
+  document.querySelectorAll('.nav-item')[idx]?.classList.add('active');
+  if (page === 'campaigns') loadCampaigns();
+  if (page === 'vault') loadVault();
+}
+
+function closeMod(id) { document.getElementById(id).classList.remove('open'); }
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:20px;right:20px;background:var(--accent);color:#000;padding:10px 18px;border-radius:8px;font-weight:700;z-index:9999;font-size:13px';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+document.getElementById('wsInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+});
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+init();
+</script>
+</body>
+</html>
